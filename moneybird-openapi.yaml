@@ -1,0 +1,332 @@
+openapi: 3.0.3
+info:
+  title: Moneybird OpenAPI spec
+  version: '2.0'
+  description: 'OpenAPI spec for Moneybird: https://developer.moneybird.com/'
+servers:
+  - url: 'https://moneybird.com/api/v2/{administration_id}'
+    description: ''
+    variables:
+      administration_id:
+        default: '12345678'
+        description: Your administration ID
+paths:
+  /contacts:
+    summary: Contacts
+    get:
+      operationId: getContacts
+      tags: ['contacts']
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ContactRead'
+          description: ''
+      summary: List contacts
+      description: ''
+    post:
+      operationId: createContact
+      tags: ['contacts']
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactCreate'
+      responses:
+        '201':
+          $ref: '#/components/schemas/ContactRead'
+      summary: Create a new contact
+components:
+  schemas:
+    ContactCreate:
+      description: Object for when creating contacts.
+      type: object
+      properties:
+        company_name:
+          type: string
+        firstname:
+          type: string
+        lastname:
+          type: string
+        address1:
+          type: string
+        address2:
+          type: string
+        zipcode:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+        phone:
+          type: string
+        delivery_method:
+          type: string
+        customer_id:
+          type: string
+        tax_number:
+          type: string
+        chamber_of_commerce:
+          type: string
+        bank_account:
+          type: string
+        email_ubl:
+          type: boolean
+        send_invoices_to_attention:
+          type: string
+        send_invoices_to_email:
+          type: string
+        send_estimates_to_attention:
+          type: string
+        send_estimates_to_email:
+          type: string
+        sepa_active:
+          type: boolean
+        sepa_iban:
+          type: string
+        sepa_iban_account_name:
+          type: string
+        sepa_bic:
+          type: string
+        sepa_mandate_id:
+          type: string
+        sepa_mandate_date:
+          type: string
+        sepa_sequence_type:
+          type: string
+        invoice_workflow_id:
+          type: string
+        estimate_workflow_id:
+          type: string
+        si_identifier:
+          type: string
+        si_identifier_type:
+          type: string
+        direct_debit:
+          type: boolean
+        custom_fields_attributes:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: number
+              value:
+                type: string
+      example:
+        company_name: Test company
+        firstname: Dennis
+        lastname: DEMO
+        address1: Test street 1
+        address2: ''
+        zipcode: 1234 AB
+        city: ''
+        country: NL
+        phone: ''
+        delivery_method: Email
+        customer_id: '6'
+        tax_number: ''
+        chamber_of_commerce: ''
+        bank_account: NL90INGB0001234657
+        email_ubl: true
+        send_invoices_to_attention: ''
+        send_invoices_to_email: example@example.com
+        send_estimates_to_attention: ''
+        send_estimates_to_email: example@example.com
+        sepa_active: false
+        sepa_iban: NL90INGB0001234567
+        sepa_iban_account_name: Dennis DEMO
+        sepa_bic: INGBNL2A
+        sepa_mandate_id: DEMO123
+        sepa_mandate_date: '2020-09-30'
+        sepa_sequence_type: RCUR
+        si_identifier: ''
+        direct_debit: false
+        custom_fields_attributes:
+          - id: 12345678901234
+            value: testing
+    ContactRead:
+      type: object
+      properties:
+        id:
+          type: string
+        administration_id:
+          type: string
+        company_name:
+          type: string
+        firstname:
+          type: string
+        lastname:
+          type: string
+        address1:
+          type: string
+        address2:
+          type: string
+        zipcode:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+        phone:
+          type: string
+        delivery_method:
+          type: string
+        customer_id:
+          type: string
+        tax_number:
+          type: string
+        chamber_of_commerce:
+          type: string
+        bank_account:
+          type: string
+        attention:
+          type: string
+        email:
+          type: string
+        email_ubl:
+          type: boolean
+        send_invoices_to_attention:
+          type: string
+        send_invoices_to_email:
+          type: string
+        send_estimates_to_attention:
+          type: string
+        send_estimates_to_email:
+          type: string
+        sepa_active:
+          type: boolean
+        sepa_iban:
+          type: string
+        sepa_iban_account_name:
+          type: string
+        sepa_bic:
+          type: string
+        sepa_mandate_id:
+          type: string
+        sepa_mandate_date:
+          type: string
+        sepa_sequence_type:
+          type: string
+        credit_card_number:
+          type: string
+        credit_card_reference:
+          type: string
+        credit_card_type:
+          type: string
+        tax_number_validated_at:
+          type: string
+        tax_number_valid:
+          type: string
+        invoice_workflow_id:
+          type: string
+        estimate_workflow_id:
+          type: string
+        si_identifier:
+          type: string
+        si_identifier_type:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+        version:
+          type: number
+        sales_invoices_url:
+          type: string
+        notes:
+          type: array
+          items:
+            type: string
+        custom_fields:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              value:
+                type: string
+        events:
+          type: array
+          items:
+            type: string
+      example:
+        id: '1234567890123456'
+        administration_id: '9876543210987654'
+        company_name: Test company
+        firstname: Dennis
+        lastname: DEMO
+        address1: Test street 1
+        address2: ''
+        zipcode: 1234 AB
+        city: ''
+        country: NL
+        phone: ''
+        delivery_method: Email
+        customer_id: '6'
+        tax_number: ''
+        chamber_of_commerce: ''
+        bank_account: NL11ABNA012345678
+        attention: ''
+        email: demo@demo.nl
+        email_ubl: true
+        send_invoices_to_attention: ''
+        send_invoices_to_email: demo@demo.nl
+        send_estimates_to_attention: ''
+        send_estimates_to_email: demo@demo.nl
+        sepa_active: false
+        sepa_iban: NL11ABNA012345678
+        sepa_iban_account_name: Demo Demo
+        sepa_bic: ABNANL2A
+        sepa_mandate_id: ''
+        sepa_sequence_type: RCUR
+        credit_card_number: ''
+        credit_card_reference: ''
+        si_identifier: ''
+        created_at: '2019-07-19T20:01:52.577Z'
+        updated_at: '2020-10-08T10:34:53.849Z'
+        version: 1602153293
+        sales_invoices_url: 'https://moneybird.com/123456/sales_invoices/abc123456/all'
+        notes: []
+        custom_fields:
+          - id: '30191546787820'
+            name: Test field OpenAPI
+            value: testing
+        events: []
+  securitySchemes:
+    OAuth2:
+      flows:
+        authorizationCode:
+          authorizationUrl: 'https://moneybird.com/oauth/authorize'
+          tokenUrl: 'https://moneybird.com/oauth/token'
+          refreshUrl: 'https://moneybird.com/oauth/token'
+          scopes:
+            sales_invoices: ''
+            documents: ''
+            estimates: ''
+            bank: ''
+            time_entries: ''
+            settings: ''
+      type: oauth2
+    ApiToken:
+      scheme: bearer
+      bearerFormat: b3f3bcf941029c00f602863492e188a64397c0f38be6a178e32721b6e3999621
+      type: http
+      description: >-
+        An API token is only meant for personal use. You can obtain one from
+        https://moneybird.com/user/applications/new
+  responses: {}
+  parameters: {}
+security:
+  - ApiToken: []
+  - OAuth2: []
+tags:
+  - name: contacts
+    externalDocs:
+      url: 'https://developer.moneybird.com/api/contacts/'
