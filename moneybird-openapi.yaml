@@ -1,18 +1,35 @@
 openapi: 3.0.3
 info:
   title: Moneybird OpenAPI spec
-  version: '2.0'
+  version: v2
   description: 'OpenAPI spec for Moneybird: https://developer.moneybird.com/'
 servers:
-  - url: 'https://moneybird.com/api/v2/{administration_id}'
+  - url: 'https://moneybird.com/api/v2/'
     description: ''
-    variables:
-      administration_id:
-        default: '12345678'
-        description: Your administration ID
 paths:
-  /contacts:
+  /administrations:
+    summary: Administrations
+    get:
+      operationId: getAdministrations
+      tags: ['administrations']
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Administration'
+          description: ''
+  /{administrationId}/contacts:
     summary: Contacts
+    parameters:
+      - in: path
+        required: true
+        name: administrationId
+        schema:
+          type: string
+        description: 'The administration you want to access'
     get:
       operationId: getContacts
       tags: ['contacts']
@@ -41,6 +58,22 @@ paths:
       summary: Create a new contact
 components:
   schemas:
+    Administration:
+      description: Object describing an administration.
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        language: 
+          type: string
+        currency:
+          type: string
+        country:
+          type: string
+        time_zone:
+          type: string
     ContactCreate:
       description: Object for when creating contacts.
       type: object
@@ -316,7 +349,7 @@ components:
       type: oauth2
     ApiToken:
       scheme: bearer
-      bearerFormat: b3f3bcf941029c00f602863492e188a64397c0f38be6a178e32721b6e3999621
+      bearerFormat: 84ec207ad0154a508f798e615a998ac1fd752926d00f955fb1df3e144cba44ab
       type: http
       description: >-
         An API token is only meant for personal use. You can obtain one from
@@ -327,6 +360,9 @@ security:
   - ApiToken: []
   - OAuth2: []
 tags:
+  - name: administrations
+    externalDocs:
+      url: 'https://developer.moneybird.com/api/administration/'
   - name: contacts
     externalDocs:
       url: 'https://developer.moneybird.com/api/contacts/'
