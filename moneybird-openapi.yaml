@@ -1,19 +1,39 @@
 openapi: 3.0.3
 info:
   title: Moneybird OpenAPI spec
-  version: '2.0'
+  version: v2
   description: 'OpenAPI spec for Moneybird: https://developer.moneybird.com/'
 servers:
-  - url: 'https://moneybird.com/api/v2/{administration_id}'
+  - url: 'https://moneybird.com/api/v2/'
     description: ''
-    variables:
-      administration_id:
-        default: '12345678'
-        description: Your administration ID
 paths:
-  /contacts:
-    summary: Contacts
+  /administrations:
+    summary: Administrations
     get:
+      summary: List all administrations
+      description: This endpoint returns all administrations associated with the account
+      operationId: getAdministrations
+      tags: ['administrations']
+      responses:
+        '200':
+          description: A successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Administration'
+  /{administrationId}/contacts:
+    summary: Contacts
+    parameters:
+      - in: path
+        required: true
+        name: administrationId
+        schema:
+          type: string
+        description: 'The administration you want to access'
+    get:
+      summary: Retrieve all contacts
       operationId: getContacts
       tags: ['contacts']
       responses:
@@ -24,10 +44,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ContactRead'
-          description: ''
-      summary: List contacts
-      description: ''
+          description: List of contacts
     post:
+      summary: Create a new contact
       operationId: createContact
       tags: ['contacts']
       requestBody:
@@ -38,19 +57,150 @@ paths:
       responses:
         '201':
           $ref: '#/components/schemas/ContactRead'
-      summary: Create a new contact
+  /{administrationId}/contacts/{contactId}:
+    summary: Contact
+    parameters:
+      - in: path
+        required: true
+        name: administrationId
+        schema:
+          type: string
+        description: The administration you want to access
+      - in: path
+        required: true
+        name: contactId
+        schema:
+          type: string
+        description: The contact you want to retrieve
+    get:
+      summary: Get contact
+      operationId: getContact
+      tags: ['contacts']
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactRead'
+          description: The requested contact
+    patch:
+      summary: Update a contact
+      operationId: updateContact
+      tags: ['contacts']
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactUpdate'
+      responses:
+        '200':
+          $ref: '#/components/schemas/ContactRead'
+  /{administrationId}/documents/purchase_invoices:
+    summary: 'Documents: Purchase invoices'
+    parameters:
+      - in: path
+        required: true
+        name: administrationId
+        schema:
+          type: string
+        description: 'The administration you want to access'
+    get:
+      summary: Get purchase invoices
+      operationId: getPurchaseInvoices
+      tags: ['purchase_invoices']
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PurchaseInvoiceRead'
+          description: List of contacts
+    post:
+      summary: Create a new purchase invoice document
+      operationId: createPurchaseInvoice
+      tags: ['purchase_invoices']
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchaseInvoiceCreate'
+      responses:
+        '201':
+          $ref: '#/components/schemas/PurchaseInvoiceRead'
+  /{administrationId}/documents/purchase_invoices/{purchaseInvoicesId}:
+    summary: 'Documents: Purchase invoice'
+    parameters:
+      - in: path
+        required: true
+        name: administrationId
+        schema:
+          type: string
+        description: The administration you want to access
+      - in: path
+        required: true
+        name: purchaseInvoicesId
+        schema:
+          type: string
+        description: The purchase invoice you want to retrieve
+    get:
+      summary: Get purchase invoice
+      operationId: getPurchaseInvoice
+      tags: ['purchase_invoices']
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseInvoiceRead'
+          description: The requested purchase invoice document
+    patch:
+      summary: Update a purchase invoice
+      operationId: updatePurchaseInvoice
+      tags: ['purchase_invoices']
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchaseInvoiceUpdate'
+      responses:
+        '200':
+          $ref: '#/components/schemas/PurchaseInvoiceRead'
 components:
   schemas:
-    ContactCreate:
-      description: Object for when creating contacts.
+    Administration:
+      description: Object describing an administration.
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the administration.
+        name:
+          type: string
+          description: The name of the administration.
+        language:
+          type: string
+          description: The language of the administration.
+        currency:
+          type: string
+          description: The currency used in the administration.
+        country:
+          type: string
+          description: The country of the administration.
+        time_zone:
+          type: string
+          description: The timezone of the administration.
+        access:
+          type: string
+          description: The access level of the current user to the administration.
+    Contact:
+      description: Object which describes a contact.
       type: object
       properties:
         company_name:
           type: string
-        firstname:
-          type: string
-        lastname:
-          type: string
+          description: A contact requires a non-blank company_name, firstname or lastname.
         address1:
           type: string
         address2:
@@ -61,61 +211,101 @@ components:
           type: string
         country:
           type: string
+          description: ISO two-character country code, e.g. NL or DE.
         phone:
           type: string
         delivery_method:
           type: string
+          description: Can be Email, Simplerinvoicing, Post or Manual.
         customer_id:
           type: string
+          description: Will be assigned automatically if empty. Should be unique for the administration.
         tax_number:
           type: string
+        firstname:
+          type: string
+          description: A contact requires a non-blank company_name, firstname or lastname.
+        lastname:
+          type: string
+          description: A contact requires a non-blank company_name, firstname or lastname.
         chamber_of_commerce:
           type: string
         bank_account:
           type: string
-        email_ubl:
-          type: boolean
         send_invoices_to_attention:
           type: string
         send_invoices_to_email:
           type: string
+          description: Should be one or more valid email addresses, separated by a comma.
         send_estimates_to_attention:
           type: string
         send_estimates_to_email:
           type: string
+          description: Should be one or more valid email addresses, separated by a comma.
         sepa_active:
           type: boolean
+          description: When true, all other SEPA fields are required.
         sepa_iban:
           type: string
+          description: Should be a valid IBAN.
         sepa_iban_account_name:
           type: string
         sepa_bic:
           type: string
+          description: Should be a valid BIC.
         sepa_mandate_id:
           type: string
         sepa_mandate_date:
           type: string
+          description: Should be a date in the past.
         sepa_sequence_type:
+          type: string
+          description: Can be RCUR, FRST, OOFF or FNAL.
+        si_identifier_type:
+          type: string
+          description: Can be 0002, 0007, 0009, 0037, 0060, 0088, 0096, 0097, 0106, 0130, 0135, 0142, 0151, 0183, 0184, 0190, 0191, 0192, 0193, 0195, 0196, 0198, 0199, 0200, 0201, 0202, 0204, 0208, 0209, 9901, 9902, 9904, 9905, 9906, 9907, 9908, 9909, 9910, 9912, 9913, 9914, 9915, 9917, 9918, 9919, 9920, 9921, 9922, 9923, 9924, 9925, 9926, 9927, 9928, 9929, 9930, 9931, 9932, 9933, 9934, 9935, 9936, 9937, 9938, 9939, 9940, 9941, 9942, 9943, 9944, 9945, 9946, 9947, 9948, 9949, 9950, 9951, 9952, 9953, 9954, 9955, 9956, 9957 or 9958.
+        si_identifier:
           type: string
         invoice_workflow_id:
           type: string
+          description: Should be a valid invoice workflow id.
         estimate_workflow_id:
           type: string
-        si_identifier:
-          type: string
-        si_identifier_type:
-          type: string
+          description: Should be a valid estimate workflow id.
+        email_ubl:
+          type: boolean
         direct_debit:
           type: boolean
-        custom_fields_attributes:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: number
-              value:
-                type: string
+    ContactUpdate:
+      description: Object for when creating contacts.
+      allOf:
+        - $ref: '#/components/schemas/Contact'
+        - type: object
+          properties:
+            custom_fields_attributes:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  value:
+                    type: string
+    ContactCreate:
+      description: Object for when creating contacts.
+      allOf:
+        - $ref: '#/components/schemas/ContactUpdate'
+        - type: object
+          properties:
+            contact_person:
+              type: array
+              items:
+                type: object
+                properties:
+                  firstname:
+                    type: string
+                  lastname:
+                    type: string
       example:
         company_name: Test company
         firstname: Dennis
@@ -149,156 +339,366 @@ components:
           - id: 12345678901234
             value: testing
     ContactRead:
+      description: Object for when reading contacts.
+      allOf:
+        - $ref: '#/components/schemas/Contact'
+        - type: object
+          properties:
+            id:
+              type: integer
+            administration_id:
+              type: integer
+            notes:
+              type: array
+              items:
+                type: string
+            custom_fields:
+              type: array
+              items:
+                $ref: '#/components/schemas/CustomField'
+            contact_people:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  administration_id:
+                    type: integer
+                  firstname:
+                    type: string
+                  lastname:
+                    type: string
+                  phone:
+                    type: string
+                  email:
+                    type: string
+                  department:
+                    type: string
+                  created_at:
+                    type: string
+                  updated_at:
+                    type: string
+                  version:
+                    type: integer
+            archived:
+              type: boolean
+            events:
+              type: array
+              items:
+                $ref: '#/components/schemas/Event'
+      example:
+        id: "387348560989914801"
+        administration_id: 123
+        company_name: "Foobar Holding B.V."
+        firstname: null
+        lastname: "Appleseed"
+        address1: "Hoofdstraat 12"
+        address2: ""
+        zipcode: "1234 AB"
+        city: "Amsterdam"
+        country: "NL"
+        phone: ""
+        delivery_method: "Email"
+        customer_id: "1"
+        tax_number: ""
+        chamber_of_commerce: ""
+        bank_account: ""
+        attention: ""
+        email: "info@example.com"
+        email_ubl: true
+        send_invoices_to_attention: ""
+        send_invoices_to_email: "info@example.com"
+        send_estimates_to_attention: ""
+        send_estimates_to_email: "info@example.com"
+        sepa_active: false
+        sepa_iban: ""
+        sepa_iban_account_name: ""
+        sepa_bic: ""
+        sepa_mandate_id: ""
+        sepa_mandate_date: null
+        sepa_sequence_type: "RCUR"
+        credit_card_number: ""
+        credit_card_reference: ""
+        credit_card_type: null
+        tax_number_validated_at: null
+        tax_number_valid: null
+        invoice_workflow_id: null
+        estimate_workflow_id: null
+        si_identifier: ""
+        si_identifier_type: null
+        moneybird_payments_mandate: false
+        created_at: "2023-05-09T09:26:35.832Z"
+        updated_at: "2023-05-09T09:26:35.852Z"
+        version: 1683624395
+        sales_invoices_url: "http://moneybird.dev/123/sales_invoices/2d977c4c1ec0f1e7feff0df2b0411a3a4960e29a5bc785bfe30dd974ca9a2e10/all"
+        notes: []
+        custom_fields: []
+        contact_people:
+          - id: 387348560997254835
+            administration_id: 123
+            firstname: "John"
+            lastname: "Appleseed"
+            phone: null
+            email: null
+            department: null
+            created_at: "2023-05-09T09:26:35.840Z"
+            updated_at: "2023-05-09T09:26:35.840Z"
+            version: 1683624395
+        archived: false
+        events:
+          - administration_id: 123
+            user_id: 16836243678565
+            action: "contact_created"
+            link_entity_id: null
+            link_entity_type: null
+            data: {}
+            created_at: "2023-05-09T09:26:35.847Z"
+            updated_at: "2023-05-09T09:26:35.847Z"
+    PurchaseInvoice:
+      description: Object which describes a purchase invoice document.
+      type: object
+      required:
+        - contact_id
+        - reference
+        - date
+      properties:
+        contact_id:
+          type: integer
+          description: Should be a valid contact id.
+        reference:
+          type: string
+        date:
+          type: string
+        due_date:
+          type: string
+        currency:
+          type: string
+          description: ISO three-character currency code, e.g. EUR or USD.
+        prices_are_incl_tax:
+          type: boolean
+        revenue_invoice:
+          type: boolean
+    PurchaseInvoiceCreate:
+      description: Object for when creaing a purchase invoice.
+      allOf:
+        - $ref: '#/components/schemas/PurchaseInvoice'
+        - type: object
+          properties:
+            details_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/PurchaseInvoiceDetail'
+    PurchaseInvoiceRead:
+      description: Object for when reading purchase invoices.
+      allOf:
+        - $ref: '#/components/schemas/PurchaseInvoice'
+        - type: object
+          properties:
+            id:
+              type: integer
+            administration_id:
+              type: integer
+            contact:
+              $ref: '#/components/schemas/ContactRead'
+            entry_number:
+              type: integer
+            state:
+              type: string
+            exchange_rate:
+              type: number
+            origin:
+              type: string
+            paid_at:
+              type: string
+            tax_number:
+              type: string
+            total_price_excl_tax:
+              type: number
+            total_price_excl_tax_base:
+              type: number
+            total_price_incl_tax:
+              type: number
+            total_price_incl_tax_base:
+              type: number
+            created_at:
+              type: string
+            updated_at:
+              type: string
+            version:
+              type: integer
+            details:
+              type: array
+              items:
+                $ref: '#/components/schemas/PurchaseInvoiceDetailRead'
+            payments:
+              type: array
+              items:
+                $ref: '#/components/schemas/Payment'
+            notes:
+              type: array
+              items:
+                type: string
+            attachments:
+              type: array
+              items:
+                $ref: '#/components/schemas/Attachment'
+            events:
+              type: array
+              items:
+                $ref: '#/components/schemas/Event'
+    PurchaseInvoiceUpdate:
+      description: Object for when updating a purchase invoice.
+      allOf:
+        - $ref: '#/components/schemas/PurchaseInvoiceCreate'
+    PurchaseInvoiceDetail:
       type: object
       properties:
         id:
+          type: integer
+        description:
           type: string
+        period:
+          type: string
+          description: 'String with a date range: 20140101..20141231, presets are also allowed: this_month, prev_month, next_month, etc.'
+        price:
+          type: number
+        amount:
+          type: string
+        tax_rate_id:
+          type: integer
+          description: Should be a valid tax rate id.
+        ledger_account_id:
+          type: integer
+          description: Should be a valid ledger account id.
+        project_id:
+          type: integer
+          description: Should be a valid project id.
+        row_order:
+          type: integer
+        _destroy:
+          type: boolean
+    PurchaseInvoiceDetailRead:
+      description: Object for when reading purchase invoice details.
+      allOf:
+        - $ref: '#/components/schemas/PurchaseInvoiceDetail'
+        - type: object
+          properties:
+            administration_id:
+              type: integer
+            amount_decimal:
+              type: number
+            description:
+              type: string
+            total_price_excl_tax_with_discount:
+              type: number
+            total_price_excl_tax_with_discount_base:
+              type: number
+            tax_report_reference:
+              type: array
+              items:
+                type: string
+            mandatory_tax_text:
+              type: string
+            created_at:
+              type: string
+            updated_at:
+              type: string
+    CustomField:
+      type: object
+      required: 
+        - id
+        - value
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        value:
+          type: string
+    Event:
+      type: object
+      properties:
         administration_id:
           type: string
-        company_name:
+        user_id:
           type: string
-        firstname:
+        action:
           type: string
-        lastname:
+        link_entity_id:
           type: string
-        address1:
+        link_entity_type:
           type: string
-        address2:
+        data:
+          type: array
+          items:
+            type: object
+        created_at:
           type: string
-        zipcode:
+        updated_at:
           type: string
-        city:
+    Attachment:
+      type: object
+      properties:
+        id:
+          type: integer
+        administration_id:
+          type: integer
+        attachable_id:
+          type: integer
+        attachable_type:
           type: string
-        country:
+        filename:
           type: string
-        phone:
+        content_type:
           type: string
-        delivery_method:
+        size:
+          type: integer
+        rotation:
+          type: integer
+        created_at:
           type: string
-        customer_id:
+        updated_at:
           type: string
-        tax_number:
+    Payment:
+      type: object
+      properties:
+        id:
+          type: integer
+        administration_id:
+          type: integer
+        invoice_type:
           type: string
-        chamber_of_commerce:
+        invoice_id:
+          type: integer
+        financial_account_id:
+          type: integer
+        user_id:
+          type: integer
+        payment_transaction_id:
           type: string
-        bank_account:
+        transaction_identifier:
           type: string
-        attention:
+        price:
+          type: number
+        price_base:
+          type: number
+        payment_date:
           type: string
-        email:
+        credit_invoice_id:
           type: string
-        email_ubl:
-          type: boolean
-        send_invoices_to_attention:
+        financial_mutation_id:
           type: string
-        send_invoices_to_email:
+        ledger_account_id:
           type: string
-        send_estimates_to_attention:
+        linked_payment_id:
           type: string
-        send_estimates_to_email:
-          type: string
-        sepa_active:
-          type: boolean
-        sepa_iban:
-          type: string
-        sepa_iban_account_name:
-          type: string
-        sepa_bic:
-          type: string
-        sepa_mandate_id:
-          type: string
-        sepa_mandate_date:
-          type: string
-        sepa_sequence_type:
-          type: string
-        credit_card_number:
-          type: string
-        credit_card_reference:
-          type: string
-        credit_card_type:
-          type: string
-        tax_number_validated_at:
-          type: string
-        tax_number_valid:
-          type: string
-        invoice_workflow_id:
-          type: string
-        estimate_workflow_id:
-          type: string
-        si_identifier:
-          type: string
-        si_identifier_type:
+        manual_payment_action:
           type: string
         created_at:
           type: string
         updated_at:
           type: string
-        version:
-          type: number
-        sales_invoices_url:
-          type: string
-        notes:
-          type: array
-          items:
-            type: string
-        custom_fields:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              name:
-                type: string
-              value:
-                type: string
-        events:
-          type: array
-          items:
-            type: string
-      example:
-        id: '1234567890123456'
-        administration_id: '9876543210987654'
-        company_name: Test company
-        firstname: Dennis
-        lastname: DEMO
-        address1: Test street 1
-        address2: ''
-        zipcode: 1234 AB
-        city: ''
-        country: NL
-        phone: ''
-        delivery_method: Email
-        customer_id: '6'
-        tax_number: ''
-        chamber_of_commerce: ''
-        bank_account: NL11ABNA012345678
-        attention: ''
-        email: demo@demo.nl
-        email_ubl: true
-        send_invoices_to_attention: ''
-        send_invoices_to_email: demo@demo.nl
-        send_estimates_to_attention: ''
-        send_estimates_to_email: demo@demo.nl
-        sepa_active: false
-        sepa_iban: NL11ABNA012345678
-        sepa_iban_account_name: Demo Demo
-        sepa_bic: ABNANL2A
-        sepa_mandate_id: ''
-        sepa_sequence_type: RCUR
-        credit_card_number: ''
-        credit_card_reference: ''
-        si_identifier: ''
-        created_at: '2019-07-19T20:01:52.577Z'
-        updated_at: '2020-10-08T10:34:53.849Z'
-        version: 1602153293
-        sales_invoices_url: 'https://moneybird.com/123456/sales_invoices/abc123456/all'
-        notes: []
-        custom_fields:
-          - id: '30191546787820'
-            name: Test field OpenAPI
-            value: testing
-        events: []
   securitySchemes:
     OAuth2:
       flows:
@@ -316,7 +716,7 @@ components:
       type: oauth2
     ApiToken:
       scheme: bearer
-      bearerFormat: b3f3bcf941029c00f602863492e188a64397c0f38be6a178e32721b6e3999621
+      bearerFormat: 84ec207ad0154a508f798e615a998ac1fd752926d00f955fb1df3e144cba44ab
       type: http
       description: >-
         An API token is only meant for personal use. You can obtain one from
@@ -327,6 +727,12 @@ security:
   - ApiToken: []
   - OAuth2: []
 tags:
+  - name: administrations
+    externalDocs:
+      url: 'https://developer.moneybird.com/api/administration/'
   - name: contacts
     externalDocs:
       url: 'https://developer.moneybird.com/api/contacts/'
+  - name: purchase_invoices
+    externalDocs:
+      url: https://developer.moneybird.com/api/documents_purchase_invoices/
